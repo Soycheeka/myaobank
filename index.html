@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="uk"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#4d3185"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><title>Мяобанк — Фікс</title><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--p:#4d3185;--p2:#6a4bb0;--bg:#f3effb;--tx:#22163f;--card:#fff;--mut:#7b6fa0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1a1230;--tx:#efe9ff;--card:#2a1f4a;--mut:#a79bd0}}
+:root[data-theme="dark"]{--bg:#1a1230;--tx:#efe9ff;--card:#2a1f4a;--mut:#a79bd0}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+#app{max-width:430px;margin:0 auto;min-height:100%;position:relative;overflow:hidden}
+.top{background:var(--p);color:#fff;padding:14px 16px 90px;display:flex;align-items:center;gap:10px}
+.top b{flex:1;text-align:center;margin-right:36px}
+.ib{background:none;border:0;color:#fff;font-size:26px;width:36px;cursor:pointer}
+.auth{padding:24px 20px}.auth h2{color:var(--p2);margin-bottom:14px}
+input,select{width:100%;padding:12px;margin:5px 0;border:1px solid #b9aad9;border-radius:10px;font-size:16px;background:var(--card);color:var(--tx)}
+.btn{width:100%;padding:13px;margin-top:10px;border:0;border-radius:12px;background:var(--p);color:#fff;font-size:16px;cursor:pointer}
+.btn.s{background:var(--card);color:var(--p2);border:1px solid var(--p2)}
+.err{color:#d33;font-size:14px;min-height:18px}
+.lnk{color:var(--p2);text-align:center;margin-top:14px;cursor:pointer;font-size:14px}
+.stage{margin-top:-80px;display:flex;flex-direction:column;align-items:center}
+.bal{height:64px;color:#fff;font-size:34px;font-weight:700;display:flex;align-items:center;transition:opacity .4s}
+.fx{display:inline-flex;width:.8em;height:.8em;border:.09em solid currentColor;border-radius:50%;align-items:center;justify-content:center;font-size:.8em;margin-left:.3em;font-weight:700}
+.wrap{perspective:900px;width:min(86vw,340px);height:215px}
+.card{width:100%;aspect-ratio:1.586;position:relative;transform-style:preserve-3d;transition:transform .7s;cursor:pointer;transform-origin:50% 100%}
+.card.s0{transform:rotateX(52deg) translateY(-4px)}.card.s1{transform:none}.card.s2{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:18px;background:#afcb1f;color:#2b3300;backface-visibility:hidden;padding:16px;box-shadow:0 10px 24px #0004;overflow:hidden}
+.face.bk{transform:rotateY(180deg);padding:0}
+.row{display:flex;justify-content:space-between;align-items:center}
+.num{font-size:21px;letter-spacing:2px;font-weight:600;margin:26px 0 14px;font-family:ui-monospace,monospace}
+.chip{width:40px;height:30px;border-radius:6px;background:#e8d77a;margin-top:12px}
+.stripe{height:44px;background:#222;margin-top:26px}
+.cvv{margin:22px 16px 0;background:#fff;border-radius:6px;padding:9px;text-align:right;font-family:ui-monospace,monospace;font-size:18px;letter-spacing:3px}
+.mc i{display:inline-block;width:26px;height:26px;border-radius:50%;background:#e33}.mc i+i{background:#f90;margin-left:-10px;opacity:.9}
+.vs{font-style:italic;font-weight:800;font-size:24px;color:#1a2f8a}
+.dots{display:flex;gap:6px;justify-content:center;margin:6px 0}.dots span{padding:4px 10px;border-radius:12px;background:var(--card);font-size:12px;cursor:pointer;color:var(--mut)}.dots .on{background:var(--p);color:#fff}
+.menus{display:flex;gap:12px;padding:6px 16px}.menus button{flex:1;padding:16px 6px;border:0;border-radius:14px;background:var(--card);color:var(--p2);font-weight:600;font-size:15px;box-shadow:0 2px 8px #4d318522;cursor:pointer}
+.ops{padding:10px 16px 60px}.ops h4{color:var(--mut);margin:8px 0}
+.op{background:var(--card);border-radius:12px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;cursor:pointer;font-size:14px}.op small{color:var(--mut);display:block}.pl{color:#2a9d4a;font-weight:700}.mn{color:#d33;font-weight:700}
+.ver{position:fixed;bottom:calc(8px + env(safe-area-inset-bottom,0px));left:10px;font-size:11px;color:var(--mut)}
+.ov{position:absolute;inset:0;background:#0007;z-index:5;display:none}.ov.on{display:block}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-height:88%;overflow:auto;background:var(--bg);border-radius:20px 20px 0 0;padding:18px}
+.sheet h3{color:var(--p2);margin-bottom:10px}
+.drawer{position:absolute;top:0;bottom:0;left:0;width:78%;background:var(--card);z-index:6;transform:translateX(-100%);transition:transform .3s;padding:24px 16px;display:flex;flex-direction:column}
+.drawer.on{transform:none}
+.drawer .it{padding:14px 8px;border-bottom:1px solid #b9aad933;color:var(--tx);cursor:pointer}
+.adm{margin-top:auto;font-size:11px;color:var(--mut);opacity:.35;cursor:pointer;padding:8px}
+.av{width:64px;height:64px;border-radius:50%;background:var(--p2);object-fit:cover;display:block;margin:6px auto}
+.res{padding:10px;border-radius:10px;background:var(--card);margin:5px 0;cursor:pointer;font-size:14px}.res.on{outline:2px solid var(--p2)}
+.fx{border:0;border-radius:0;width:.8em;height:.8em;margin-left:.25em;display:inline-block;vertical-align:-.05em}.fx svg{width:100%;height:100%;display:block}
+.face{background:linear-gradient(135deg,#c4de3c,#afcb1f 50%,#97b10e)}
+.face i{position:absolute;background:#0000001c}.g1{width:60%;height:140%;right:-8%;top:-20%;clip-path:polygon(30% 0,100% 0,70% 100%,0 100%)}.g2{width:35%;height:120%;right:12%;top:-10%;background:#ffffff22!important;clip-path:polygon(40% 0,100% 0,60% 100%,0 100%)}
+.face>*:not(i){position:relative}
+.cl{width:26px;height:26px}.dc{font-size:12px;letter-spacing:3px;font-weight:700;text-transform:uppercase}
+.bk .stripe{height:58px;margin-top:22px;position:relative}.sig{margin:18px 16px 0;height:42px;background:repeating-linear-gradient(45deg,#fff,#fff 4px,#eee 4px,#eee 8px);display:flex;align-items:center;justify-content:flex-end;padding:0 12px;border-radius:4px}.sig b{background:#fff;padding:3px 10px;font-family:ui-monospace,monospace;font-size:19px;letter-spacing:3px;color:#000}
+.full{position:absolute;inset:0;background:var(--bg);overflow:auto}
+.fh{background:linear-gradient(180deg,#4d3185,#5f7fcf);padding:18px 16px 20px;color:#fff;position:sticky;top:0;z-index:2}.fh h3{margin:14px 0 12px;font-size:22px}.fh input{background:#ffffff33;border:0;color:#fff;border-radius:14px;margin:0}.fh input::placeholder{color:#e6e0ff}.bk2{font-size:26px;cursor:pointer}
+.fb{padding:16px}.box{background:var(--card);border-radius:20px;padding:16px;margin-bottom:14px}.box h4{margin-bottom:10px}
+.cr{display:flex;align-items:center;gap:14px;padding:10px 0;cursor:pointer}.cr span{flex:1}.cr small{display:block;color:var(--mut);font-size:12px}
+.ca{width:46px;height:46px;border-radius:50%;background:var(--p2);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;object-fit:cover;flex:none}
+.stt{font-size:22px;color:var(--mut);cursor:pointer}.stt.on{color:#f5c518}
+.favs{display:flex;gap:14px;overflow:auto}.favs div{text-align:center;font-size:12px;cursor:pointer;min-width:60px}.favs .ca{margin:0 auto 4px}
+
+#app{background:radial-gradient(circle at 15% 8%,#8c6fd855,transparent 45%),radial-gradient(circle at 85% 55%,#c9b6f566,transparent 50%),radial-gradient(circle at 30% 95%,#6a4bb044,transparent 50%),var(--bg)}
+#app::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;background-size:190px 170px;background-image:radial-gradient(1.2px 1.2px at 20px 30px,#7a5cc6,transparent),radial-gradient(1px 1px at 90px 80px,#9a7fe0,transparent),radial-gradient(1.5px 1.5px at 150px 20px,#7a5cc6,transparent),radial-gradient(1px 1px at 60px 140px,#a58be6,transparent),radial-gradient(1.3px 1.3px at 130px 110px,#7a5cc6,transparent)}
+.top{padding:5px 10px 7px}.top b{font-size:23px;letter-spacing:.5px}.ib{font-size:21px;width:34px}
+.stage{margin-top:8px}.bal{height:46px;color:var(--tx);position:relative;z-index:1}.wrap{margin-top:-46px}
+.face>.blk{position:absolute;inset:0;background:#000a;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;border-radius:18px;z-index:3}
+#cat{position:absolute;z-index:30;left:50%;bottom:90px;transform:translateX(-50%);width:80%;text-align:center}
+#cat.peek{left:auto;right:-44px;transform:none;width:72%;bottom:180px}
+.bub{background:#fff;color:#4d3185;border-radius:16px;padding:12px;font-weight:600;box-shadow:0 4px 16px #0005;margin-bottom:4px}#cat svg{width:110px}#ctm{font-size:22px;margin-top:4px}
+
+body{background:var(--bg)}#sky{position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none}
+#app{position:relative;z-index:1;background:none}#app::before{display:none}
+.fg{position:absolute;width:70vmax;height:70vmax;border-radius:50%;filter:blur(60px);opacity:.35;animation:drift 40s ease-in-out infinite alternate}
+.f1{background:#8c6fd8;left:-20vmax;top:-20vmax}.f2{background:#c9b6f5;right:-25vmax;top:30%;animation-duration:55s}.f3{background:#6a4bb0;left:10%;bottom:-35vmax;animation-duration:48s}
+@keyframes drift{to{transform:translate(18vmax,12vmax) scale(1.2)}}
+.stars{position:absolute;inset:0;background-size:190px 170px;animation:tw 3s ease-in-out infinite alternate;background-image:radial-gradient(1.4px 1.4px at 20px 30px,#7a5cc6,transparent),radial-gradient(1px 1px at 90px 80px,#9a7fe0,transparent),radial-gradient(1.6px 1.6px at 150px 20px,#7a5cc6,transparent)}
+.s2{background-size:230px 210px;animation-delay:1.5s;animation-duration:4.2s;background-image:radial-gradient(1px 1px at 60px 140px,#a58be6,transparent),radial-gradient(1.5px 1.5px at 170px 110px,#7a5cc6,transparent),radial-gradient(1.2px 1.2px at 110px 40px,#9a7fe0,transparent)}
+@keyframes tw{from{opacity:.15}to{opacity:.95}}
+.cmt{position:absolute;width:90px;height:2px;background:linear-gradient(90deg,transparent,#b9a2f5);box-shadow:0 0 8px #b9a2f5;animation:fall 2.4s linear forwards}
+@keyframes fall{from{opacity:1;transform:rotate(35deg) translateX(0)}to{opacity:0;transform:rotate(35deg) translateX(320px)}}
+.ast{position:absolute;background:#7d6a9e;border-radius:40% 55% 45% 60%;animation:fl 9s linear forwards}
+@keyframes fl{from{opacity:0;transform:translate(0,0) rotate(0)}10%{opacity:.8}to{opacity:0;transform:translate(-170px,90px) rotate(300deg)}}
+.menus button:first-child{background:linear-gradient(135deg,#6a4bb0,#8d66da);color:#fff}
+.fh{background:linear-gradient(180deg,#4d3185,#7a52c4)}
+#cat{right:6px;left:auto;top:120px;bottom:auto;transform:none;width:62%;text-align:right;pointer-events:none;animation:fin .5s}#cat button{pointer-events:auto}
+#cat.out{animation:fout .5s forwards}#cat.peek{right:-46px;top:200px}#cat svg{width:120px}.bub{text-align:center}
+@keyframes fin{from{opacity:0;transform:translateY(14px)}}@keyframes fout{to{opacity:0;transform:translateY(14px)}}
+#tmr{position:absolute;z-index:31;top:7px;right:8px;background:#fff;color:#4d3185;font-weight:700;border-radius:14px;padding:4px 12px;font-size:14px}
+.smk{animation:smk 1.3s forwards}@keyframes smk{to{opacity:0;filter:blur(9px);transform:translateY(-16px) scale(1.7)}}
+#cb{position:fixed;bottom:calc(14px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);width:auto;padding:10px 22px;margin:0;z-index:4}
+
+:root{--bg:#d3c8ea}body,input,select,textarea,button{font-family:'Nunito',system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.stars{background-image:radial-gradient(2.2px 2.2px at 20px 30px,#fff,#c3a8ff 55%,transparent),radial-gradient(1.6px 1.6px at 90px 80px,#fff,#8fb4ff 55%,transparent),radial-gradient(2.4px 2.4px at 150px 20px,#fff,#e0a8ff 55%,transparent)}
+.s2{background-image:radial-gradient(1.8px 1.8px at 60px 140px,#fff,#ffb3e6 55%,transparent),radial-gradient(2.2px 2.2px at 170px 110px,#fff,#a8c8ff 55%,transparent),radial-gradient(1.6px 1.6px at 110px 40px,#fff,#d2b8ff 55%,transparent)}
+.stars{filter:drop-shadow(0 0 3px #c3a8ff)}
+.btn,.menus button,.it{transition:background .3s,color .3s,transform .25s,box-shadow .3s}
+.btn.s{background:#6a4bb0;color:#fff;border:0}.btn.s[style]{background:#fff2f2}
+.menus button{background:#5b3f9b;color:#fff}.menus button:first-child{background:linear-gradient(135deg,#6a4bb0,#8d66da)}
+.btn:active,.btn.s:active,.menus button:active,.it:active{background:#efe6ff!important;color:#4d3185!important;transform:scale(.97)}
+.drawer{background:linear-gradient(180deg,#4d3185,#2b1a57);color:#fff;transition:transform .45s cubic-bezier(.2,.8,.2,1)}.drawer .it{color:#fff}
+.sheet{animation:up .4s cubic-bezier(.2,.8,.2,1)}.ov.on{animation:fi .3s}.wrap{animation:fi .45s}
+@keyframes up{from{transform:translateY(40px);opacity:0}}@keyframes fi{from{opacity:0}}
+.card{transition:transform .8s cubic-bezier(.3,.7,.2,1)}.bal{transition:opacity .5s}
+.bk2{font-weight:900;font-size:32px;-webkit-text-stroke:2px #fff;line-height:1}.stt{color:var(--mut);display:flex}
+#cpn{position:absolute;left:0;right:0;bottom:0;background:var(--card);padding:12px 14px calc(12px + env(safe-area-inset-bottom,0px));border-radius:20px 20px 0 0;z-index:8;box-shadow:0 -6px 20px #0004;animation:up .4s}
+.sws{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px}.sw{flex:none;padding:14px 10px;border-radius:10px;font-size:12px;font-weight:700;border:1px solid #0003;cursor:pointer;min-width:90px;text-align:center}.sw.on{outline:3px solid var(--p2)}
+#cp{position:absolute;top:0;bottom:0;right:0;width:min(80%,330px);background:linear-gradient(180deg,#4d3185,#2b1a57);color:#fff;z-index:9;padding:22px 16px;transform:translateX(105%);transition:transform .45s cubic-bezier(.2,.8,.2,1)}#cp.on{transform:none}
+#cp textarea{width:100%;padding:12px;border-radius:10px;border:1px solid #b9aad9;font-size:16px;margin:5px 0}
+#cph{position:absolute;right:0;top:45%;background:#4d3185;color:#fff;padding:14px 8px;border-radius:12px 0 0 12px;z-index:4;cursor:pointer;opacity:.75}
+
+.menus button:last-child{background:linear-gradient(135deg,#6a4bb0,#8d66da);color:#fff}
+.bk2{font-weight:700;-webkit-text-stroke:.8px #fff;font-size:30px}
+#app{overflow:visible}body{overflow-x:hidden}
+.top{position:relative;z-index:2;box-shadow:0 0 0 100vmax var(--p);clip-path:inset(0 -100vmax);padding:5px 6px 7px}
+.top .ib{margin-left:min(0px,calc((100% - 100vw)/2))}
+.top b{font-family:'Comfortaa','Nunito',system-ui,sans-serif;font-weight:700;font-size:24px;letter-spacing:.3px}
+.drawer,#cp{visibility:hidden;transition:transform .45s cubic-bezier(.2,.8,.2,1),visibility 0s .45s}.drawer.on,#cp.on{visibility:visible;transition-delay:0s,0s}
+@keyframes drift{to{transform:translate(5vmax,3.5vmax) scale(1.06)}}
+.fg{animation-duration:70s}.f2{animation-duration:90s}.f3{animation-duration:80s}
+.cmt{animation:fall2 2.6s linear forwards}.ast{animation:fl2 9s linear forwards}
+@keyframes fall2{from{opacity:1;transform:rotate(var(--r,35deg)) translateX(0)}to{opacity:0;transform:rotate(var(--r,35deg)) translateX(var(--d,320px))}}
+@keyframes fl2{from{opacity:0;transform:translate(0,0) rotate(0)}10%{opacity:.8}to{opacity:0;transform:translate(var(--dx,-170px),var(--dy,90px)) rotate(300deg)}}
+#toast{position:absolute;top:12px;left:7%;width:86%;z-index:50;background:#fff;color:#4d3185;padding:12px 16px;border-radius:14px;font-weight:700;box-shadow:0 6px 20px #0005;text-align:center;animation:tin .4s}
+@keyframes tin{from{opacity:0;transform:translateY(-20px)}}
+
+.hi{font-family:'Comfortaa','Nunito',sans-serif;font-weight:700;font-size:46px;text-align:center;color:var(--p2);margin:18px 0 6px}.sub{text-align:center;margin-bottom:16px;font-weight:600}
+.ph{display:flex;align-items:center;border:1px solid #b9aad9;border-radius:10px;background:var(--card);margin:5px 0}.ph span{padding:0 4px 0 12px;font-weight:800;color:var(--p2)}.ph input{border:0;margin:0;background:none}
+.lb{font-size:13px;color:var(--mut);margin:12px 2px 4px;font-weight:700}
+.seg{display:flex;gap:8px}.seg span{flex:1;text-align:center;padding:12px;border-radius:10px;background:var(--card);border:1px solid #b9aad9;font-weight:700;cursor:pointer;transition:background .3s,color .3s}.seg .on{background:var(--p);color:#fff}
+.whs{position:relative;display:flex;gap:6px}.whs::after{content:"";position:absolute;left:0;right:0;top:40px;height:40px;border-radius:10px;background:#6a4bb022;border:1px solid var(--p2);pointer-events:none}
+.wh{flex:1;height:120px;overflow-y:scroll;scroll-snap-type:y mandatory;padding:40px 0;scrollbar-width:none;text-align:center;background:var(--card);border-radius:12px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}.wh::-webkit-scrollbar{display:none}
+.wi{height:40px;line-height:40px;scroll-snap-align:center;font-weight:700;font-size:17px}
+</style></head><body>
+<div id="app"></div><div class="ver">v0.2.2</div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script><script>
+const FBCFG={apiKey:"AIzaSyBHkE6SLI_T8JwLeN0oWc6KjFmkPCB22w0",authDomain:"bank-fiks.firebaseapp.com",projectId:"bank-fiks",storageBucket:"bank-fiks.firebasestorage.app",messagingSenderId:"381304976464",appId:"1:381304976464:web:b8ba564953064097cd0d55"};
+async function fbInit(){firebase.initializeApp(FBCFG);return firebase.firestore()}
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+
+const R=14,$=s=>document.querySelector(s),app=$('#app');
+let DB,me=null,ci=0,st=0,ADM=false,realMe=null,tmOn=false,tm=null,ct=null,dbh=null,last={},pt=null,ready=false,rem={};
+const ld=()=>{try{return JSON.parse(localStorage.getItem('fixdb'))||{users:[]}}catch(e){return{users:[]}}};
+const sv=()=>{push();try{localStorage.setItem('fixdb',JSON.stringify(DB));localStorage.setItem('fixme',ADM&&realMe?realMe.id:(me&&me.id!=='fix'?me.id:''))}catch(e){}};
+DB=ld();
+try{const i=localStorage.getItem('fixme');me=DB.users.find(u=>u.id===i)||null}catch(e){}
+const fmt=b=>Math.floor(b/100)+', '+String(b%100).padStart(2,'0');
+const FX=n=>`${n}<span class="fx"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><ellipse cx="12" cy="12" rx="6.5" ry="5.2"/><line x1="12" y1="2" x2="12" y2="22"/></svg></span>`;
+const rnd=n=>Array.from({length:n},()=>Math.floor(Math.random()*10)).join('');
+const allNums=()=>DB.users.flatMap(u=>u.cards.map(c=>c.num)).concat(['2512152025121520','2512152025126209','2512152025126223']);
+function newCard(sys){let n;do{n='25121520'+rnd(8)}while(allNums().includes(n));return{num:n,cvv:rnd(3),sys,bal:0,ops:[]}}
+const spc=n=>n.replace(/(\d{4})/g,'$1 ').trim();
+const now=()=>new Date().toLocaleString('uk-UA',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+const uname=u=>(u.name+' '+u.surname).trim();
+const card=()=>me.cards[ci]||me.cards[0];
+
+function sheet(h){$('#ov')||0;const o=$('#ov');o.innerHTML=`<div class="sheet" onclick="event.stopPropagation()">${h}</div>`;o.classList.add('on')}
+function closeS(){$('#ov').classList.remove('on')}
+
+function reg(){app.innerHTML=`<div class="auth"><h2>Реєстрація — Мяобанк</h2>
+<input id="rs" placeholder="Прізвище"><input id="rn" placeholder="Ім'я"><input id="re" type="email" placeholder="Електронна пошта">
+<input id="rk" placeholder="Нікнейм (за бажанням)">
+<select id="ry"><option>Visa</option><option>Mastercard</option></select>
+<input id="rp" type="password" inputmode="numeric" maxlength="4" placeholder="Пароль (4 цифри)">
+<div class="err" id="er"></div><button class="btn" onclick="doReg()">Створити картку</button>
+${DB.users.length?'<div class="lnk" onclick="login()">Вже є акаунт? Увійти</div>':''}</div>`}
+function doReg(){const v=i=>$('#'+i).value.trim();
+if(!v('rs')||!v('rn'))return $('#er').textContent="Вкажіть прізвище та ім'я";
+if(!/^\S+@\S+\.\S+$/.test(v('re')))return $('#er').textContent='Некоректна пошта';
+if(!/^\d{4}$/.test(v('rp')))return $('#er').textContent='Пароль — рівно 4 цифри';
+const u={id:'u'+Date.now(),surname:v('rs'),name:v('rn'),email:v('re'),nick:v('rk'),pin:v('rp'),avatar:'',cards:[newCard(v('ry'))]};
+DB.users.push(u);me=u;ci=0;sv();home()}
+function login(){app.innerHTML=`<div class="auth"><h2>Вхід</h2><select id="lu">${DB.users.map(u=>`<option value="${u.id}">${uname(u)}</option>`).join('')}</select>
+<input id="lp" type="password" inputmode="numeric" maxlength="4" placeholder="Пароль (4 цифри)"><div class="err" id="er"></div>
+<button class="btn" onclick="doLogin()">Увійти</button><div class="lnk" onclick="reg()">Нова реєстрація</div></div>`}
+function doLogin(){const u=DB.users.find(x=>x.id===$('#lu').value);if(u&&u.pin===$('#lp').value){me=u;ci=0;st=0;sv();home()}else $('#er').textContent='Невірний пароль'}
+
+function cardHTML(c){const logo=c.sys==='Visa'?'<span class="vs">VISA</span>':'<span class="mc"><i></i><i></i></span>';
+return `<div class="card s${st}" id="cd" onclick="flip()"><div class="face"><div class="row"><b style="font-size:18px">Мяобанк</b>${logo}</div><div class="chip"></div>
+<div class="num">${spc(c.num)}</div><div class="row"><span style="font-size:13px">${uname(me).toUpperCase()}</span><span>01/27</span></div>
+<div style="font-size:12px;margin-top:6px">Дитяча картка</div></div>
+<div class="face bk"><div class="stripe"></div><div class="cvv">${c.cvv}</div></div></div>`}
+function flip(){st=(st+1)%3;$('#cd').className='card s'+st;$('#bl').style.opacity=st?0:1}
+function home(){const c=card();
+app.innerHTML=`<div class="top"><button class="ib" onclick="drawer(1)">☰</button><b>Мяобанк</b></div>
+<div class="stage"><div class="bal" id="bl" style="opacity:${st?0:1}">${FX(fmt(c.bal))}</div>
+<div class="wrap">${cardHTML(c)}</div>
+${me.cards.length>1?`<div class="dots">${me.cards.map((x,i)=>`<span class="${i===ci?'on':''}" onclick="ci=${i};st=0;home()">•••• ${x.num.slice(-4)}</span>`).join('')}</div>`:''}</div>
+<div class="menus" style="margin-top:14px"><button onclick="tr()">Переказати на картку</button><button onclick="uah()">Перерахувати в гривні</button></div>
+<div class="ops"><h4>Останні операції</h4>${c.ops.length?c.ops.slice(0,3).map(opH).join(''):'<div style="color:var(--mut);font-size:14px">Операцій поки немає</div>'}
+${c.ops.length?'<div class="lnk" onclick="allOps()">Усі операції</div>':''}</div>
+<div class="ov" id="ov" onclick="closeS()"></div><div class="ov" id="dov" onclick="drawer(0)"></div>
+<div class="drawer" id="dr"><div style="text-align:center">${me.avatar?`<img class="av" src="${me.avatar}">`:'<div class="av"></div>'}<b>${uname(me)}</b><div style="font-size:12px;color:var(--mut)">${me.nick?'@'+me.nick:''}</div></div>
+<div class="it" onclick="profile()" style="margin-top:14px">Профіль</div><div class="it" onclick="acts()">Дії з карткою</div><div class="it" onclick="me=null;sv();st=0;DB.users.length?login():reg()">Вийти</div>
+<div class="adm" onclick="admin()">адміністратор</div></div>`}
+function drawer(o){$('#dr').classList.toggle('on',!!o);$('#dov').classList.toggle('on',!!o);$('#dov').style.zIndex=5}
+const opH=o=>`<div class="op"><div>${o.s?'Таємниця':o.t}<small>${o.d}</small></div><div class="${o.a>0?'pl':'mn'}">${o.a>0?'+':'−'}${fmt(Math.abs(o.a))}</div></div>`;
+function allOps(){sheet(`<h3>Усі операції</h3>${card().ops.map(opH).join('')}`)}
+function addOp(c,t,a){c.ops.unshift({t,a,d:now()})}
+
+let pick=null;
+function tr(){pick=null;sheet(`<h3>Переказати на картку</h3><input id="q" placeholder="Введіть ім'я або номер картки" oninput="srch()"><div id="rs"></div>
+<input id="am" type="number" min="0" step="0.01" placeholder="Сума у Фіксах"><div class="err" id="er"></div><button class="btn" onclick="send()">Переказати</button>`)}
+function srch(){const q=$('#q').value.trim().toLowerCase(),d=q.replace(/\s/g,'');pick=null;if(!q)return $('#rs').innerHTML='';
+const m=[];DB.users.forEach(u=>u.cards.forEach(c=>{if(c===card())return;
+if(uname(u).toLowerCase().includes(q)||u.surname.toLowerCase().includes(q)||(u.nick&&u.nick.toLowerCase().includes(q))||(/^\d+$/.test(d)&&c.num.includes(d)))m.push([u,c])}));
+window._m=m;$('#rs').innerHTML=m.slice(0,6).map((x,i)=>`<div class="res" id="r${i}" onclick="sel(${i})">${uname(x[0])} ${x[0].nick?'(@'+x[0].nick+')':''}<br><small>•••• ${x[1].num.slice(-4)} · ${x[1].sys}</small></div>`).join('')||'<div class="err">Нікого не знайдено</div>'}
+function sel(i){pick=_m[i][1];document.querySelectorAll('.res').forEach(e=>e.classList.remove('on'));$('#r'+i).classList.add('on')}
+function send(){const c=card(),a=Math.round(parseFloat($('#am').value)*100);
+if(!pick)return $('#er').textContent='Оберіть отримувача';
+if(!(a>0))return $('#er').textContent='Вкажіть суму';
+if(a>c.bal)return $('#er').textContent='Недостатньо Фіксів';
+const ru=DB.users.find(u=>u.cards.includes(pick));
+c.bal-=a;pick.bal+=a;addOp(c,'Переказ → '+uname(ru),-a);addOp(pick,'Переказ від '+uname(me),a);sv();closeS();home()}
+function uah(){const c=card();sheet(`<h3>Перерахувати в гривні</h3><p>Поточний баланс:</p><p style="font-size:26px;font-weight:700">${FX(fmt(c.bal))}</p>
+<p style="color:var(--mut)">Курс: 10 Фіксів = 1 грн</p><p style="font-size:22px;margin-top:8px">≈ ${(c.bal/1000).toFixed(2)} грн</p>
+<input id="am" type="number" min="0" step="0.01" placeholder="Скільки Фіксів перерахувати"><div class="err" id="er"></div><button class="btn" onclick="conv()">Перерахувати</button>`)}
+function conv(){const c=card(),a=Math.round(parseFloat($('#am').value)*100);
+if(!(a>0))return $('#er').textContent='Вкажіть суму';if(a>c.bal)return $('#er').textContent='Недостатньо Фіксів';
+c.bal-=a;addOp(c,'Обмін на '+(a/1000).toFixed(2)+' грн',-a);sv();closeS();home()}
+
+function profile(){drawer(0);sheet(`<h3>Профіль</h3><img class="av" id="pa" src="${me.avatar||''}"><input type="file" accept="image/*" onchange="ava(this)">
+<input id="ps" value="${me.surname}" placeholder="Прізвище"><input id="pn" value="${me.name}" placeholder="Ім'я"><input id="pk" value="${me.nick}" placeholder="Нікнейм">
+<div class="err" id="er"></div><button class="btn" onclick="saveP()">Зберегти</button>`)}
+let newAv=null;
+function ava(i){const f=i.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const s=128,cv=document.createElement('canvas');cv.width=cv.height=s;const x=cv.getContext('2d'),m=Math.min(im.width,im.height);x.drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,s,s);newAv=cv.toDataURL('image/jpeg',.8);$('#pa').src=newAv};im.src=r.result};r.readAsDataURL(f)}
+function saveP(){if(!$('#ps').value.trim()||!$('#pn').value.trim())return $('#er').textContent="Прізвище та ім'я обов'язкові";
+me.surname=$('#ps').value.trim();me.name=$('#pn').value.trim();me.nick=$('#pk').value.trim();if(newAv)me.avatar=newAv;newAv=null;sv();closeS();home()}
+function acts(){drawer(0);sheet(`<h3>Дії з карткою</h3><button class="btn s" onclick="chPin()">Зміна паролю</button><button class="btn s" onclick="chCvv()">Зміна CVV</button><button class="btn s" onclick="addC()">Додати ще одну картку</button>`)}
+function chPin(){sheet(`<h3>Змінити пароль</h3><input id="o" type="password" inputmode="numeric" maxlength="4" placeholder="Старий пароль"><input id="n" type="password" inputmode="numeric" maxlength="4" placeholder="Новий пароль (4 цифри)"><div class="err" id="er"></div><button class="btn" onclick="doPin()">Змінити</button>`)}
+function doPin(){if($('#o').value!==me.pin)return $('#er').textContent='Старий пароль невірний';if(!/^\d{4}$/.test($('#n').value))return $('#er').textContent='Потрібно 4 цифри';me.pin=$('#n').value;sv();closeS()}
+function chCvv(){sheet(`<h3>Змінити CVV</h3><input id="o" type="password" inputmode="numeric" maxlength="4" placeholder="Пароль від акаунта"><input id="n" inputmode="numeric" maxlength="3" value="${rnd(3)}"><div class="err" id="er"></div><button class="btn" onclick="doCvv()">Змінити</button>`)}
+function doCvv(){if($('#o').value!==me.pin)return $('#er').textContent='Невірний пароль';if(!/^\d{3}$/.test($('#n').value))return $('#er').textContent='CVV — 3 цифри';card().cvv=$('#n').value;sv();closeS();home()}
+function addC(){sheet(`<h3>Нова картка</h3><select id="ry"><option>Visa</option><option>Mastercard</option></select><button class="btn" onclick="me.cards.push(newCard($('#ry').value));ci=me.cards.length-1;st=0;sv();closeS();home()">Створити</button>`)}
+function admin(){drawer(0);sheet(`<h3>Адмін-доступ</h3><input id="w" placeholder="Слово-код"><div class="err" id="er"></div><button class="btn" onclick="chkA()">Увійти</button>`)}
+function chkA(){if($('#w').value==='dimple')admPanel();else $('#er').textContent='Невірне слово-код'}
+function admPanel(){sheet(`<h3>Адмінка</h3>${DB.users.map(u=>u.cards.map(c=>`<div class="res"><b>${uname(u)}</b> · ${spc(c.num)}<br><small>CVV ${c.cvv} · ${fmt(c.bal)} Ф</small></div>`).join('')).join('')||'Користувачів немає'}
+<select id="ac">${DB.users.flatMap(u=>u.cards.map(c=>`<option value="${c.num}">${uname(u)} •••• ${c.num.slice(-4)}</option>`)).join('')}</select>
+<input id="aa" type="number" step="0.01" placeholder="Нарахувати Фікси (можна мінус)"><button class="btn" onclick="admAdd()">Нарахувати</button>`)}
+function admAdd(){const c=DB.users.flatMap(u=>u.cards).find(c=>c.num===$('#ac').value),a=Math.round(parseFloat($('#aa').value)*100);
+if(!c||!a)return;c.bal=Math.max(0,c.bal+a);addOp(c,'Адміністратор',a);sv();admPanel();if(me)setTimeout(()=>{},0)}
+function cardHTML(c){const logo=c.sys==='Visa'?'<span class="vs">VISA</span>':'<span class="mc"><i style="position:static"></i><i style="position:static"></i></span>';
+return `<div class="card s${st}" id="cd" onclick="flip()"><div class="face"><i class="g1"></i><i class="g2"></i>
+<div class="row"><b style="font-size:20px">Мяобанк</b><svg class="cl" viewBox="0 0 24 24" fill="none" stroke="#2b3300" stroke-width="2" stroke-linecap="round"><path d="M7 7a7 7 0 0 1 0 10M11 4a11 11 0 0 1 0 16M15 1a15 15 0 0 1 0 22" transform="translate(2 0)"/></svg></div>
+<div class="chip"></div><div class="num">${spc(c.num)}</div>
+<div class="row"><div><div class="dc">Дитяча картка</div><div style="font-size:11px;margin-top:3px">${uname(me).toUpperCase()}</div></div><div style="text-align:right"><div style="font-size:13px;margin-bottom:3px">01/27</div>${logo}</div></div></div>
+<div class="face bk"><i class="g1"></i><div class="stripe"></div><div class="sig"><b>${c.cvv}</b></div><div style="position:absolute;bottom:14px;right:16px;font-weight:700">Мяобанк</div></div></div>`}
+const avt=u=>u.avatar?`<img class="ca" src="${u.avatar}">`:`<div class="ca">${u.name[0]}</div>`;
+function fvl(){me.fav=me.fav||[];return me.fav}
+function tr(){pick=null;const o=$('#ov');o.innerHTML=`<div class="full" onclick="event.stopPropagation()"><div class="fh"><span class="bk2" onclick="closeS()">←</span><h3>Переказ на картку</h3><input id="q" placeholder="Уведіть ім'я або номер картки" oninput="tl()"></div><div class="fb" id="tb"></div></div>`;o.classList.add('on');tl()}
+function rowH(u,c){return `<div class="cr" onclick="pk('${c.num}')">${avt(u)}<span>${uname(u)}${u.nick?' (@'+u.nick+')':''}<small>•••• ${c.num.slice(-4)} · ${c.sys}</small></span><b class="stt ${fvl().includes(c.num)?'on':''}" onclick="event.stopPropagation();fv('${c.num}')">★</b></div>`}
+function tl(){const q=$('#q').value.trim().toLowerCase(),d=q.replace(/\s/g,''),m=[];
+DB.users.forEach(u=>u.cards.forEach(c=>{if(c===card())return;if(!q||uname(u).toLowerCase().includes(q)||(u.nick||'').toLowerCase().includes(q)||(/^\d+$/.test(d)&&c.num.includes(d)))m.push([u,c])}));
+const fv2=m.filter(x=>fvl().includes(x[1].num));
+$('#tb').innerHTML=(!q&&fv2.length?`<div class="box"><h4>Обрані</h4><div class="favs">${fv2.map(x=>`<div onclick="pk('${x[1].num}')">${avt(x[0])}${x[0].name}</div>`).join('')}</div></div>`:'')+
+`<div class="box"><h4>${q?'Результати':'Контакти'}</h4>${m.map(x=>rowH(x[0],x[1])).join('')||'<div style="color:var(--mut)">Нікого не знайдено</div>'}</div>`}
+function fv(n){const f=fvl(),i=f.indexOf(n);i<0?f.push(n):f.splice(i,1);sv();tl()}
+function pk(n){let u,c;DB.users.forEach(x=>x.cards.forEach(y=>{if(y.num===n){u=x;c=y}}));pick=c;
+$('#tb').innerHTML=`<div class="box"><div class="cr">${avt(u)}<span>${uname(u)}<small>${spc(c.num)}</small></span></div>
+<input id="am" type="number" min="0" step="0.01" placeholder="Сума у Фіксах"><div class="err" id="er"></div><button class="btn" onclick="send()">Переказати</button><button class="btn s" onclick="tl()">Обрати іншого</button></div>`}
+
+const CATSVG='<svg viewBox="0 0 120 90"><polygon points="14,40 18,4 48,24" fill="#7b2fa0"/><polygon points="106,40 102,4 72,24" fill="#7b2fa0"/><polygon points="22,32 24,14 38,24" fill="#9a9aa5"/><polygon points="98,32 96,14 82,24" fill="#9a9aa5"/><ellipse cx="60" cy="52" rx="48" ry="36" fill="#7b2fa0"/><circle cx="42" cy="46" r="11" fill="#fff"/><circle cx="78" cy="46" r="11" fill="#fff"/><circle cx="45" cy="42" r="5" fill="#222"/><circle cx="81" cy="42" r="5" fill="#222"/><path d="M54 64q6 6 12 0" stroke="#fff" stroke-width="2" fill="none"/></svg>';
+const allCards=()=>DB.users.flatMap(u=>u.cards);
+const bk=()=>'<button class="btn s" onclick="acts()">Назад</button>';
+const cs=c=>{const k=c.color||'#afcb1f';return `background:${c.grad||`linear-gradient(135deg,color-mix(in srgb,${k} 82%,#fff),${k} 50%,color-mix(in srgb,${k} 85%,#000))`};color:${c.tc||'#2b3300'}`};
+function cardHTML(c){const logo=c.sys==='Visa'?'<span class="vs">VISA</span>':'<span class="mc"><i style="position:static"></i><i style="position:static"></i></span>';
+const bl=c.blocked?'<div class="blk">🔒 Заблоковано</div>':'';
+return `<div class="card s${st}" id="cd" onclick="flip()"><div class="face" style="${cs(c)}"><i class="g1"></i><i class="g2"></i>
+<div class="row"><b style="font-size:20px">Мяобанк</b><svg class="cl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 7a7 7 0 0 1 0 10M11 4a11 11 0 0 1 0 16M15 1a15 15 0 0 1 0 22" transform="translate(2 0)"/></svg></div>
+<div class="chip"></div><div class="num">${spc(c.num)}</div>
+<div class="row"><div><div class="dc">${c.label||lbl(me)}</div><div style="font-size:11px;margin-top:3px">${uname(me).toUpperCase()}</div></div><div style="text-align:right"><div style="font-size:13px;margin-bottom:3px">01/27</div>${logo}</div></div>${bl}</div>
+<div class="face bk" style="${cs(c)}"><i class="g1"></i><div class="stripe"></div><div class="sig"><b>${c.cvv}</b></div><div style="position:absolute;bottom:14px;right:16px;font-weight:700">Мяобанк</div>${bl}</div></div>`}
+function home(){const c=card();
+app.innerHTML=`<div class="top"><button class="ib" onclick="drawer(1)">☰</button><b>Мяобанк</b></div>
+<div class="stage"><div class="bal" id="bl" style="opacity:${st?0:1}">${FX(fmt(c.bal))}</div>
+<div class="wrap">${cardHTML(c)}</div>
+${me.cards.length>1?`<div class="dots">${me.cards.map((x,i)=>`<span class="${i===ci?'on':''}" onclick="ci=${i};st=0;home()">•••• ${x.num.slice(-4)}</span>`).join('')}</div>`:''}</div>
+<div class="menus" style="margin-top:14px"><button onclick="tr()">Переказати на картку</button><button onclick="uah()">Перерахувати в гривні</button></div>
+<div class="ops"><h4>Останні операції</h4>${c.ops.length?c.ops.slice(0,3).map(opH).join(''):'<div style="color:var(--mut);font-size:14px">Операцій поки немає</div>'}
+${c.ops.length?'<div class="lnk" onclick="allOps()">Усі операції</div>':''}</div>
+<div class="ov" id="ov" onclick="closeS()"></div><div class="ov" id="dov" onclick="drawer(0)"></div>
+<div class="drawer" id="dr"><div style="text-align:center">${me.avatar?`<img class="av" src="${me.avatar}">`:'<div class="av"></div>'}<b>${uname(me)}</b><div style="font-size:12px;color:var(--mut)">${ADM?'Адміністраторський мішок':(me.nick?'@'+me.nick:'')}</div></div>
+${ADM?`<div class="it" style="margin-top:14px" onclick="acts()">Дії із власною карткою</div><div class="it" onclick="oth()">Дії із іншими картками</div><div class="it" onclick="cw()">Змінити код-слово</div><div class="it" onclick="exitA()">Вийти з мішка</div>`
+:`<div class="it" style="margin-top:14px" onclick="profile()">Профіль</div><div class="it" onclick="acts()">Дії з карткою</div><div class="it" onclick="me=null;sv();st=0;DB.users.length?login():reg()">Вийти</div><div class="adm" onclick="admin()">адміністраторський мішок</div>`}</div>`}
+function acts(){drawer(0);const c=card();sheet(`<h3>${ADM?'Дії із власною карткою':'Дії з карткою'}</h3>${ADM?'':'<button class="btn s" onclick="chPin()">Зміна паролю</button>'}<button class="btn s" onclick="chCvv()">Зміна CVV</button><button class="btn s" onclick="colr()">Змінити колір</button>${ADM?'':'<button class="btn s" onclick="addC()">Додати ще одну картку</button>'}<button class="btn s" onclick="tgB()">${c.blocked?'Розблокувати':'Заблокувати'} картку</button><button class="btn" onclick="closeS();drawer(1)">Назад</button>`)}
+['chPin','chCvv','addC'].forEach(n=>{const f=window[n];window[n]=function(){f();$('.sheet').insertAdjacentHTML('beforeend',bk())}});
+function tgB(){const c=card();c.blocked=!c.blocked;sv();closeS();home()}
+const COLS=[['Червоний','#e0524a','#fff'],['Оранжевий','#f0932b','#2b1a00'],['Жовтий','#f2d02e','#2b2500'],['Зелений','#4caf50','#06260a'],['Блакитний','#5bc0eb','#06232e'],['Синій','#3f6fd8','#fff'],['Фіолетовий','#8e5fd0','#fff'],['Чорний','#222','#fff'],['Білий','#f5f5f5','#222'],['Бежевий','#e6d5b8','#3a2f1a'],['Рожевий','#f48fb1','#3a0f20'],['Базовий','#afcb1f','#2b3300']];
+function colr(){sheet(`<h3>Змінити колір</h3><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px">${COLS.map((x,i)=>`<div onclick="setC(${i})" style="background:${x[1]};color:${x[2]};border-radius:10px;padding:14px 4px;text-align:center;font-size:12px;cursor:pointer;border:1px solid #0003">${x[0]}</div>`).join('')}</div>`+bk())}
+function setC(i){const c=card();c.color=COLS[i][1];c.tc=COLS[i][2];c.grad=null;sv();closeS();home()}
+function send(){const c=card(),a=Math.round(parseFloat($('#am').value)*100),E=t=>$('#er').textContent=t;
+if(c.blocked)return E('Вашу картку заблоковано');if(!pick)return E('Оберіть отримувача');if(pick.blocked)return E('Картку отримувача заблоковано');
+if(!(a>0))return E('Вкажіть суму');if(a>c.bal)return E('Недостатньо Фіксів');
+const ru=DB.users.find(u=>u.cards.includes(pick));c.bal-=a;pick.bal+=a;addOp(c,'Переказ → '+uname(ru),-a);addOp(pick,'Переказ від '+uname(me),a);sv();closeS();home()}
+const _cv=conv;conv=function(){if(card().blocked)return $('#er').textContent='Вашу картку заблоковано';_cv()};
+// ---- Адміністраторський мішок
+function cat(t,o={}){clearTimeout(ct);let e=$('#cat');if(!e){e=document.createElement('div');e.id='cat';app.appendChild(e)}
+e.className=o.peek?'peek':'';e.innerHTML=`<div class="bub">${t}<div id="ctm"></div>${o.yn?'<div class="row" style="gap:8px;margin-top:8px"><button class="btn" style="margin:0" onclick="catY()">Так</button><button class="btn s" style="margin:0" onclick="catN()">Ні</button></div>':''}</div>${CATSVG}`;
+if(o.ms)ct=setTimeout(catX,o.ms)}
+function catX(){clearTimeout(ct);const e=$('#cat');if(e)e.remove()}
+function admin(){drawer(0);AD();
+sheet(AD().lock?`<h3>Адміністраторський мішок</h3><p>Мішок закрито назавжди.</p><button class="btn s" onclick="closeS();drawer(1)">Назад</button>`:`<h3>Адміністраторський мішок</h3><input id="w" placeholder="Слово-код"><div class="err" id="er"></div><button class="btn" onclick="chkA()">Увійти</button><button class="btn s" onclick="closeS();drawer(1)">Назад</button>`)}
+function give(x,k,t){const c=card(),a=AD();c.bal+=x;addOp(c,'Кіт з мішка',x);a[k]=true;a.pn=c.num;sv();const b=$('#bl');if(b)b.innerHTML=FX(fmt(c.bal));t?cat(t,{ms:4000}):catX()}
+function catY(){give(5000,'p50')}
+function catN(){cat('В мішку усе одно нічого немає',{ms:4000})}
+function timer(){let s=60;tmOn=true;const sh=()=>{const e=$('#ctm');if(e)e.textContent='0:'+String(s).padStart(2,'0')};sh();
+tm=setInterval(()=>{s--;sh();if(s<=0){clearInterval(tm);tmOn=false;give(500,'p5','Тримай 5 Фіксів!')}},1000)}
+function drain(c){let left=Math.min(5000,c.bal);const iv=setInterval(()=>{const d=Math.min(50,left);c.bal-=d;left-=d;const b=$('#bl');if(b)b.innerHTML=FX(fmt(c.bal));sv();if(left<=0)clearInterval(iv)},120)}
+function chkA(){const a=AD(),v=$('#w').value;
+if(v==='dimple'){clearInterval(tm);tmOn=false;catX();return enterA()}
+$('#w').value='';$('#er').textContent='Невірне слово-код';a.w++;clearInterval(tm);if(tmOn){tmOn=false;catX()}
+const c=a.pn&&allCards().find(x=>x.num===a.pn);
+if(a.p5&&c){c.bal=Math.max(0,c.bal-500);a.p5=false;addOp(c,'Повернення 5 Ф',-500);cat('Не думай мене дурити',{peek:1,ms:5000})}
+const w=a.w;
+if(w===3)cat('Я - кіт з мішка, спробуй ще',{ms:10000});
+else if(w===5)cat('Я і досі в мішку',{ms:7000});
+else if(w===10){cat('Як щодо 5 фіксів і ти забуваєш про кота у мішку?');timer()}
+else if(w===20)cat('50 фіксів і ти мене тут ніколи не бачив',{yn:1});
+else if(w===25){a.lock=true;if(a.p50&&c){cat('Я найкращий кіт у мішку',{ms:8000});drain(c)}else cat('Так і не впіймав кота з мішка',{ms:6000});setTimeout(closeS,6000)}
+sv()}
+function enterA(){closeS();if(!DB.fix)DB.fix={id:'fix',name:'Фікс',surname:'Школа',nick:'',avatar:'',cards:[{num:'2512152025121520',cvv:'777',sys:'Mastercard',bal:700000,ops:[],label:'Власна Картка',grad:'linear-gradient(135deg,#f6a9c6,#d3b6e6 55%,#9ec9ee)',tc:'#2b2150'}]};
+realMe=me;ADM=true;me=DB.fix;ci=0;st=0;sv();home()}
+function exitA(){ADM=false;me=realMe;realMe=null;ci=0;st=0;sv();home()}
+function oth(){drawer(0);sheet(`<h3>Дії із іншими картками</h3>${allCards().map(c=>{const u=DB.users.find(x=>x.cards.includes(c));return `<div class="res" onclick="oc('${c.num}')">${uname(u)}<br><small>${spc(c.num)} · ${fmt(c.bal)} Ф${c.blocked?' · 🔒':''}</small></div>`}).join('')||'Карток ще немає'}<button class="btn" onclick="closeS();home();drawer(1)">Назад</button>`)}
+let oN=null;
+function oc(n){oN=n;const c=allCards().find(x=>x.num===n);sheet(`<h3>${spc(n)}</h3><p style="margin-bottom:8px">Баланс: ${FX(fmt(c.bal))}</p><input id="am" type="number" min="0" step="0.01" placeholder="Сума у Фіксах"><div class="err" id="er"></div>
+<button class="btn" onclick="oa('t')">Переказати на картку</button><button class="btn s" onclick="oa('w')">Списати з картки</button><button class="btn s" onclick="oa('b')">${c.blocked?'Розблокувати':'Заблокувати'} картку</button><button class="btn s" onclick="oth()">Назад</button>`)}
+function oa(k){const t=allCards().find(x=>x.num===oN),f=card();
+if(k==='b'){t.blocked=!t.blocked;sv();return oc(oN)}
+const a=Math.round(parseFloat($('#am').value)*100),E=x=>$('#er').textContent=x;if(!(a>0))return E('Вкажіть суму');
+if(k==='t'){if(a>f.bal)return E('Недостатньо Фіксів');f.bal-=a;t.bal+=a;addOp(f,'Переказ → •••• '+oN.slice(-4),-a);addOp(t,'Переказ від Фікс',a)}
+else{if(a>t.bal)return E('На картці немає стільки Фіксів');t.bal-=a;f.bal+=a;addOp(t,'Списання (Фікс)',-a);addOp(f,'Списання з •••• '+oN.slice(-4),a)}
+sv();oc(oN)}
+
+const sky=document.createElement('div');sky.id='sky';sky.innerHTML='<div class="fg f1"></div><div class="fg f2"></div><div class="fg f3"></div><div class="stars"></div><div class="stars s2"></div>';document.body.prepend(sky);
+setInterval(()=>{const k=Math.random()<.5,e=document.createElement('i');e.className=k?'cmt':'ast';e.style.top=Math.random()*60+'%';e.style.left=Math.random()*100+'%';if(!k)e.style.width=e.style.height=4+Math.random()*7+'px';sky.appendChild(e);setTimeout(()=>e.remove(),k?2500:9000)},3500);
+function addOp(c,t,a){c.ops.unshift({t,a,d:now(),s:/Кіт з мішка|Повернення 5/.test(t)});c.ops.length=Math.min(c.ops.length,100)}
+const FXN='2512152025121520';
+function ensureFix(){if(!DB.fix){DB.fix={id:'fix',name:'Фікс',surname:'Школа',nick:'',avatar:'',cards:[{num:FXN,cvv:'777',sys:'Mastercard',bal:700000,ops:[],label:'Власна Картка',grad:'linear-gradient(135deg,#f6a9c6,#d3b6e6 55%,#9ec9ee)',tc:'#2b2150'}]};sv()}}
+ensureFix();
+const CAT2='<svg viewBox="0 0 150 200"><path d="M104 172q42 2 32-46q-4-14-15-8" fill="none" stroke="#7b2fa0" stroke-width="13" stroke-linecap="round"/><ellipse cx="70" cy="148" rx="36" ry="44" fill="#7b2fa0"/><ellipse cx="70" cy="160" rx="19" ry="28" fill="#9a9aa5" opacity=".55"/><rect x="46" y="172" width="18" height="22" rx="9" fill="#7b2fa0"/><rect x="76" y="172" width="18" height="22" rx="9" fill="#7b2fa0"/><polygon points="30,50 34,8 62,32" fill="#7b2fa0"/><polygon points="110,50 106,8 78,32" fill="#7b2fa0"/><polygon points="38,42 40,20 54,32" fill="#9a9aa5"/><polygon points="102,42 100,20 86,32" fill="#9a9aa5"/><ellipse cx="70" cy="66" rx="44" ry="36" fill="#7b2fa0"/><circle cx="52" cy="60" r="12" fill="#fff"/><circle cx="88" cy="60" r="12" fill="#fff"/><circle cx="55" cy="55" r="5.5" fill="#222"/><circle cx="91" cy="55" r="5.5" fill="#222"/><path d="M62 80q8 7 16 0" stroke="#fff" stroke-width="2.4" fill="none"/></svg>';
+let rm=null;
+function cat(t,o={}){clearTimeout(ct);clearTimeout(rm);let e=$('#cat');if(!e){e=document.createElement('div');e.id='cat';app.appendChild(e)}
+e.className=o.peek?'peek':'';e.innerHTML=`<div class="bub">${t}${o.yn?'<div class="row" style="gap:8px;margin-top:8px"><button class="btn" style="margin:0" onclick="catY()">Так</button><button class="btn s" style="margin:0" onclick="catN()">Ні</button></div>':''}</div>${CAT2}`;
+if(o.ms)ct=setTimeout(catX,o.ms)}
+function catX(){clearTimeout(ct);const e=$('#cat');if(!e)return;e.classList.add('out');rm=setTimeout(()=>e.remove(),500)}
+function tmrEl(){let e=$('#tmr');if(!e){e=document.createElement('div');e.id='tmr';app.appendChild(e)}return e}
+function smoke(){const e=$('#tmr');if(!e)return;e.id='';e.classList.add('smk');setTimeout(()=>e.remove(),1400)}
+function timer(){let s=60;tmOn=true;const sh=()=>{tmrEl().textContent='⏳ 5 Ф · 0:'+String(s).padStart(2,'0')};sh();
+tm=setInterval(()=>{s--;sh();if(s<=0){clearInterval(tm);tmOn=false;smoke();give(500,'p5','Тримай 5 Фіксів!')}},1000)}
+function chkA(){const a=AD(),v=$('#w').value;
+if(v===(DB.word||'dimple')){clearInterval(tm);if(tmOn){tmOn=false;smoke()}catX();return enterA()}
+$('#w').value='';$('#er').textContent='Невірне слово-код';a.w++;clearInterval(tm);if(tmOn){tmOn=false;smoke();catX()}
+const c=a.pn&&allCards().find(x=>x.num===a.pn);
+if(a.p5&&c){c.bal=Math.max(0,c.bal-500);a.p5=false;addOp(c,'Повернення 5 Ф',-500);cat('Не думай мене дурити',{peek:1,ms:5000})}
+const w=a.w;
+if(w===3)cat('Я - кіт з мішка, спробуй ще',{ms:10000});
+else if(w===5)cat('Я і досі в мішку',{ms:7000});
+else if(w===10){cat('Як щодо 5 фіксів і ти забуваєш про кота у мішку?',{ms:8000});timer()}
+else if(w===20)cat('50 фіксів і ти мене тут ніколи не бачив',{yn:1});
+else if(w===25){a.lock=true;if(a.p50&&c){cat('Я найкращий кіт у мішку',{ms:8000});drain(c)}else cat('Так і не впіймав кота з мішка',{ms:6000});setTimeout(closeS,6000)}
+sv()}
+function enterA(){closeS();ensureFix();realMe=me;ADM=true;me=DB.fix;ci=0;st=0;sv();home()}
+const _h=home;home=function(){_h();if(ADM)app.insertAdjacentHTML('beforeend','<button class="btn" id="cb" onclick="base()">Клієнтська база</button>')};
+function base(){sheet(`<h3>Клієнтська база</h3>${DB.users.map(u=>`<div class="box" style="padding:12px"><b>${uname(u)}</b>${u.nick?' (@'+u.nick+')':''}<br><small>${u.phone||''} · ${u.dob||u.email||''}</small>${u.cards.map(c=>`<div class="res" onclick="oc('${c.num}')">${spc(c.num)} · ${c.sys}<br><small>${fmt(c.bal)} Ф${c.blocked?' · 🔒':''}${c.phys?' · 🪪':''}</small></div>`).join('')}</div>`).join('')||'Користувачів ще немає'}<button class="btn" onclick="closeS()">Назад</button>`)}
+function cw(){drawer(0);sheet(`<h3>Змінити код-слово</h3><input id="o" placeholder="Старе код-слово"><input id="n1" placeholder="Нове код-слово"><input id="n2" placeholder="Повторіть нове код-слово"><div class="err" id="er"></div><button class="btn" onclick="cwOk()">Змінити</button><button class="btn s" onclick="closeS();drawer(1)">Назад</button>`)}
+function cwOk(){const a=AD(),E=t=>$('#er').textContent=t,n=$('#n1').value;
+if($('#o').value!==(DB.word||'dimple'))return E('Старе код-слово невірне');if(!n)return E('Введіть нове слово');if(n!==$('#n2').value)return E('Слова не збігаються');DB.word=n;sv();closeS();drawer(1)}
+function acts(){drawer(0);const c=card();sheet(`<h3>${ADM?'Дії із власною карткою':'Дії з карткою'}</h3><button class="btn s" onclick="colr()">Змінити колір</button>${ADM?'':'<button class="btn s" onclick="chPin()">Змінити пароль</button>'}<button class="btn s" onclick="chCvv()">Змінити CVV</button>${ADM?'':'<button class="btn s" onclick="addC()">Додати ще одну картку</button>'}<button class="btn s" onclick="phys()">Виготовити фізичну картку</button><button class="btn s" style="color:#d33;border-color:#d33" onclick="tgB()">${c.blocked?'Розблокувати':'Заблокувати'} картку</button><button class="btn" onclick="closeS();drawer(1)">Назад</button>`)}
+function phys(){const c=card();sheet(`<h3>Фізична картка</h3>${c.phys?"<p>Заявку вже подано ✅ Школа Фікс зв'яжеться з вами.</p>":'<p style="margin-bottom:8px">Виготовити фізичну картку •••• '+c.num.slice(-4)+'?</p><button class="btn" onclick="physOk()">Подати заявку</button>'}`+bk())}
+function physOk(){card().phys=1;sv();phys()}
+let pc=0;
+function colr(){const c=card(),i=COLS.findIndex(x=>x[1]===c.color);pc=i<0?11:i;sheet(`<h3>Змінити колір</h3><div id="pv"></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px">${COLS.map((x,i)=>`<div class="sw" onclick="pvS(${i})" style="background:${x[1]};color:${x[2]};border-radius:10px;padding:14px 4px;text-align:center;font-size:12px;cursor:pointer;border:1px solid #0003">${x[0]}</div>`).join('')}</div><button class="btn" onclick="setC(pc)">Застосувати</button>`+bk());pvS(pc)}
+function pvS(i){pc=i;const c=card(),x=COLS[i];$('#pv').innerHTML=`<div style="${cs({color:x[1],tc:x[2]})};border-radius:16px;aspect-ratio:1.586;max-width:260px;margin:0 auto 12px;padding:14px;box-shadow:0 6px 16px #0003"><b style="font-size:18px">Мяобанк</b><div style="font-family:monospace;font-size:16px;margin:30px 0 10px">${spc(c.num)}</div><div class="dc">${c.label||lbl(me)}</div></div>`;document.querySelectorAll('.sw').forEach((e,j)=>e.style.outline=j===i?'3px solid var(--p2)':'none')}
+function uah(){const c=card();sheet(`<h3>Перерахувати в гривні</h3><p>Поточний баланс:</p><p style="font-size:26px;font-weight:700">${FX(fmt(c.bal))}</p><p style="color:var(--mut)">Курс: 10 Фіксів = 1 грн</p><p style="font-size:20px;margin:6px 0">≈ ${(c.bal/1000).toFixed(2)} грн</p>
+<input id="fa" type="number" min="0" step="0.01" placeholder="Сума у Фіксах" oninput="cvt('f')"><input id="ga" type="number" min="0" step="0.01" placeholder="Сума у гривнях" oninput="cvt('g')"><p style="font-size:12px;color:var(--mut)">Це лише калькулятор: гроші нікуди не переводяться.</p><button class="btn s" onclick="closeS()">Закрити</button>`)}
+function cvt(k){if(k==='f'){const v=parseFloat($('#fa').value);$('#ga').value=isNaN(v)?'':+(v/10).toFixed(2)}else{const v=parseFloat($('#ga').value);$('#fa').value=isNaN(v)?'':+(v*10).toFixed(2)}}
+const lst=()=>ADM?DB.users:DB.users.concat([DB.fix]);
+function fvl(){if(!me.fav)me.fav=ADM?[]:[FXN];return me.fav}
+function tl(){const q=$('#q').value.trim().toLowerCase(),d=q.replace(/\s/g,''),m=[];
+lst().forEach(u=>u.cards.forEach(c=>{if(c===card())return;if(!q||uname(u).toLowerCase().includes(q)||(u.nick||'').toLowerCase().includes(q)||(/^\d+$/.test(d)&&c.num.includes(d)))m.push([u,c])}));
+const fv2=m.filter(x=>fvl().includes(x[1].num));
+$('#tb').innerHTML=(!q&&fv2.length?`<div class="box"><h4>Обрані</h4><div class="favs">${fv2.map(x=>`<div onclick="pk('${x[1].num}')">${avt(x[0])}${x[0].name}</div>`).join('')}</div></div>`:'')+
+`<div class="box"><h4>${q?'Результати':'Контакти'}</h4>${m.map(x=>rowH(x[0],x[1])).join('')||'<div style="color:var(--mut)">Нікого не знайдено</div>'}</div>`}
+function pk(n){let u,c;lst().forEach(x=>x.cards.forEach(y=>{if(y.num===n){u=x;c=y}}));pick=c;
+$('#tb').innerHTML=`<div class="box"><div class="cr">${avt(u)}<span>${uname(u)}<small>${spc(c.num)}</small></span></div>
+<input id="am" type="number" min="0" step="0.01" placeholder="Сума у Фіксах"><div class="err" id="er"></div><button class="btn" onclick="send()">Переказати</button><button class="btn s" onclick="tl()">Обрати іншого</button></div>`}
+function send(){const c=card(),a=Math.round(parseFloat($('#am').value)*100),E=t=>$('#er').textContent=t;
+if(c.blocked)return E('Вашу картку заблоковано');if(!pick)return E('Оберіть отримувача');if(pick.blocked)return E('Картку отримувача заблоковано');
+if(!(a>0))return E('Вкажіть суму');if(a>c.bal)return E('Недостатньо Фіксів');
+const ru=lst().find(u=>u.cards.includes(pick));c.bal-=a;pick.bal+=a;addOp(c,'Переказ → '+uname(ru),-a);addOp(pick,'Переказ від '+uname(me),a);sv();closeS();home()}
+
+const AD=()=>me.adm||(me.adm={w:0});
+function send(){const c=card(),a=Math.round(parseFloat($('#am').value)*100),E=t=>$('#er').textContent=t;
+if(c.blocked)return E('Вашу картку заблоковано');if(!pick)return E('Оберіть отримувача');
+const rc=lst().flatMap(u=>u.cards).find(x=>x.num===pick.num);if(!rc)return E('Отримувача не знайдено');if(rc.blocked)return E('Картку отримувача заблоковано');
+if(!(a>0))return E('Вкажіть суму');if(a>c.bal)return E('Недостатньо Фіксів');
+const ru=lst().find(u=>u.cards.includes(rc));c.bal-=a;rc.bal+=a;addOp(c,'Переказ → '+uname(ru),-a);addOp(rc,'Переказ від '+uname(me),a);sv();closeS();home()}
+// ---- спільна база (db)
+function docsOf(){const o={},add=u=>{const{cards,...r}=u,cs=cards||[];o['users/'+u.id]=JSON.stringify({...r,cn:cs.map(c=>c.num)});cs.forEach(c=>o['cards/'+c.num]=JSON.stringify({...c,own:u.id}))};
+DB.users.forEach(add);if(DB.fix)add(DB.fix);o['meta/adm']=JSON.stringify({word:DB.word||'dimple'});return o}
+function build(m){const us={},cs={};for(const k in m){const[c,i]=k.split('/'),v=JSON.parse(m[k]);if(c==='users')us[i]=v;else if(c==='cards')cs[i]=v;else if(i==='adm')DB.word=v.word}
+const arr=Object.values(us).map(u=>{const{cn,...r}=u;r.cards=(cn||[]).map(n=>{const c=cs[n];if(!c)return null;const{own,...cc}=c;return cc}).filter(Boolean);return r});
+DB.users=arr.filter(u=>u.id!=='fix');DB.fix=arr.find(u=>u.id==='fix')||DB.fix}
+function push(){if(!dbh||!ready)return;clearTimeout(pt);pt=setTimeout(async()=>{const o=docsOf();for(const k in o){if(last[k]===o[k])continue;last[k]=o[k];const[c,i]=k.split('/');try{await dbh.collection(c).doc(i).set({j:o[k]});rem[k]=o[k]}catch(e){delete last[k]}}pt=null},150)}
+function rebind(){if(ADM){me=DB.fix;if(realMe)realMe=DB.users.find(u=>u.id===realMe.id)||realMe}else if(me){me=DB.users.find(x=>x.id===me.id)||null}}
+function refresh(){rebind();if(!me)return;const o=$('#ov'),d=$('#dr');if((o&&o.classList.contains('on'))||(d&&d.classList.contains('on'))){const b=$('#bl');if(b)b.innerHTML=FX(fmt(card().bal));return}home()}
+function badge(t){const v=document.querySelector('.ver');if(v)v.textContent='v0.2.2 · '+t}
+badge('локально');
+(async()=>{try{const db=await fbInit();if(!db)return;
+for(const c of ['users','cards','meta']){const q=await db.collection(c).get();q.docs.forEach(d=>{const j=(d.data()||{}).j;if(j)rem[c+'/'+d.id]=j})}
+last={...rem};const loc=docsOf();for(const k in loc)if(!(k in rem))rem[k]=loc[k];
+build(rem);mig();dbh=db;ready=true;push();badge('спільна база 🟢');
+['users','cards','meta'].forEach(c=>db.collection(c).onSnapshot(sn=>{sn.docChanges().forEach(ch=>{const k=c+'/'+ch.doc.id,j=(ch.doc.data()||{}).j;if(ch.type==='removed'){delete rem[k];delete last[k]}else if(j){rem[k]=j;last[k]=j}});if(!pt){build(rem);refresh()}}));
+if(!me){const u=DB.users.find(x=>x.id===localStorage.getItem('fixme'));if(u){me=u;home()}else if(DB.users.length&&$('#rn')&&!$('#rn').value)login()}else refresh()
+}catch(e){badge('локально')}})();
+
+function age(d){const m=(d||'').match(/^(\d{2})\.(\d{2})\.(\d{4})$/);if(!m)return 0;const n=new Date();let a=n.getFullYear()-+m[3];if(n.getMonth()+1<+m[2]||(n.getMonth()+1===+m[2]&&n.getDate()<+m[1]))a--;return a}
+const lbl=u=>u.owner?'Картка Власника':(a=>a<14?'Дитяча картка':a<18?'Підліткова картка':'Доросла картка')(age(u.dob));
+function mig(){if(DB.fix&&!DB.fix.v2){DB.fix.v2=1;DB.fix.cards[0].bal+=1000000;sv()}}mig();
+function reg(){app.innerHTML=`<div class="auth"><h2>Реєстрація — Мяобанк</h2><input id="rs" placeholder="Прізвище"><input id="rn" placeholder="Ім'я"><input id="rd" inputmode="numeric" maxlength="10" placeholder="Дата народження (дд.мм.рррр)"><input id="rk" placeholder="Нікнейм (за бажанням)">
+<select id="ry"><option>Visa</option><option>Mastercard</option></select><input id="rp" type="password" inputmode="numeric" maxlength="4" placeholder="Пароль (4 цифри)"><div class="err" id="er"></div><button class="btn" onclick="doReg()">Створити картку</button>${DB.users.length?'<div class="lnk" onclick="login()">Вже є акаунт? Увійти</div>':''}</div>`}
+const OW=[['Смітюх','Жанна','13.07.1981','2512152025126209','Привіт, власнице'],['Богомолов','Роман','08.10.1980','2512152025126223','Привіт, власнику']];
+function doReg(){const v=i=>$('#'+i).value.trim(),E=t=>$('#er').textContent=t;
+if(!v('rs')||!v('rn'))return E("Вкажіть прізвище та ім'я");
+const m=v('rd').match(/^(\d{2})\.(\d{2})\.(\d{4})$/);if(!m)return E('Дата у форматі дд.мм.рррр');const d=new Date(+m[3],+m[2]-1,+m[1]);if(d.getDate()!==+m[1]||d>new Date()||+m[3]<1900)return E('Некоректна дата');
+if(!/^\d{4}$/.test(v('rp')))return E('Пароль — рівно 4 цифри');
+const u={id:'u'+Date.now(),surname:v('rs'),name:v('rn'),dob:v('rd'),nick:v('rk'),pin:v('rp'),avatar:'',cards:[newCard(v('ry'))]};
+const ow=OW.find(o=>o[0].toLowerCase()===u.surname.toLowerCase()&&o[1].toLowerCase()===u.name.toLowerCase()&&o[2]===u.dob&&!allCards().some(c=>c.num===o[3]));
+if(ow){u.owner=true;u.cards[0].num=ow[3];u.cards[0].bal=500000;addOp(u.cards[0],'Кіт з мішка',500000)}
+DB.users.push(u);me=u;ci=0;st=0;sv();home();if(ow)cat(ow[4],{ms:9000})}
+// колір на головній картці
+const XC=[['Візерунок',"radial-gradient(circle at 15% 25%,#d44a9a99,transparent 40%),radial-gradient(circle at 60% 60%,#5a6fd099,transparent 45%),radial-gradient(circle at 85% 90%,#2ba3c899,transparent 40%),#fff",'#2b2150'],['Зелена','linear-gradient(160deg,#07452f,#02321f)','#e8b84a'],['Фіол. смуга',"linear-gradient(#f4e6f0,#fbeef2) center/62% 9% no-repeat,radial-gradient(ellipse at center,#e8604a 0,#d05a78 16%,#7a3f7a 34%,transparent 58%),#3e3f5e",'#fff'],['Темно-синя',"radial-gradient(circle at 75% 5%,#0a5cff,transparent 55%),radial-gradient(circle at 40% 30%,#2a96ff 0,transparent 7%),#001230",'#fff'],['Св. рожева',"radial-gradient(circle at 70% 55%,#f8b9b5,transparent 40%),radial-gradient(circle at 25% 65%,#f7b0ae,transparent 40%),#fdf3f1",'#6a2a2f'],['Біло-сіра',"linear-gradient(#a6a6ab,#a6a6ab) right 3% bottom 5%/72% 72% no-repeat,#f3f2f6",'#333'],['Червона блиск',"radial-gradient(circle,#ff9a9a99 1px,transparent 2px) 0 0/13px 13px,linear-gradient(135deg,#d0021b,#b00018)",'#fff'],['Рожевий статик',"repeating-radial-gradient(#0000000d 0 1px,transparent 1px 3px),#f276b0",'#2a0b1a'],['Блакитно-сіра','linear-gradient(135deg,#7fa8c6,#6c8296)','#fff'],['Градієнт','linear-gradient(135deg,#f6a9c6,#d3b6e6 55%,#9ec9ee)','#2b2150']];
+let PAL=[];
+function colr(){closeS();drawer(0);PAL=COLS.map(x=>({n:x[0],k:x[1],tc:x[2]})).concat(ADM||me.owner?XC.map(x=>({n:x[0],g:x[1],tc:x[2]})):[]);
+const p=document.createElement('div');p.id='cpn';p.innerHTML=`<div style="font-weight:800;margin-bottom:8px">Змінити колір</div><div class="sws">${PAL.map((x,i)=>`<span class="sw" onclick="pvS(${i})" style="background:${x.g||x.k};color:${x.tc}">${x.n}</span>`).join('')}</div><div class="row" style="gap:8px"><button class="btn" onclick="setC()">Застосувати</button><button class="btn s" onclick="cpx()">Назад</button></div>`;app.appendChild(p);pc=-1}
+function pvS(i){pc=i;const x=PAL[i];document.querySelectorAll('#cd .face').forEach(f=>f.style.cssText=cs({color:x.k,grad:x.g,tc:x.tc}));document.querySelectorAll('.sw').forEach((e,j)=>e.classList.toggle('on',j===i))}
+function setC(){if(pc<0)return cpx();const c=card(),x=PAL[pc];c.color=x.k||null;c.grad=x.g||null;c.tc=x.tc;sv();$('#cpn').remove();home()}
+function cpx(){const p=$('#cpn');if(p)p.remove();home();acts()}
+// зірочка
+const STAR=on=>`<svg viewBox="0 0 24 24" width="26" height="26" fill="${on?'#f5c518':'none'}" stroke="${on?'#f5c518':'currentColor'}" stroke-width="1.6" stroke-linejoin="round" style="${on?'filter:drop-shadow(0 0 6px #f5c518)':''}"><path d="M12 2l2.6 7.4L22 12l-7.4 2.6L12 22l-2.6-7.4L2 12l7.4-2.6z"/></svg>`;
+function rowH(u,c){return `<div class="cr" onclick="pk('${c.num}')">${avt(u)}<span>${uname(u)}${u.nick?' (@'+u.nick+')':''}<small>•••• ${c.num.slice(-4)} · ${c.sys}</small></span><b class="stt" onclick="event.stopPropagation();fv('${c.num}')">${STAR(fvl().includes(c.num))}</b></div>`}
+// повідомлення кота + свайпи
+const esc=t=>t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const _h2=home;home=function(){_h2();
+if(ADM){app.insertAdjacentHTML('beforeend',`<div id="cp"><h3>Повідомлення від кота</h3><select id="cpu">${DB.users.map(u=>`<option value="${u.id}">${uname(u)}</option>`).join('')}</select><textarea id="cpt" rows="4" placeholder="Що скаже кіт?"></textarea><div class="err" id="cpe" style="color:#ffb3b3"></div><button class="btn" onclick="cpSend()">Надіслати</button><button class="btn s" onclick="cpOpen(0)">Закрити</button></div><div id="cph" onclick="cpOpen(1)">‹</div>`)}
+else if(me&&me.msgs&&me.msgs.length){const t=me.msgs.join('<br><br>');me.msgs=[];sv();cat(t,{ms:12000})}};
+function cpOpen(o){const p=$('#cp');if(p)p.classList.toggle('on',!!o)}
+function cpSend(){const u=DB.users.find(x=>x.id===$('#cpu').value),t=$('#cpt').value.trim();if(!u||!t)return $('#cpe').textContent='Оберіть користувача і введіть текст';u.msgs=(u.msgs||[]).concat(esc(t));sv();$('#cpt').value='';$('#cpe').textContent='Надіслано ✅'}
+let tx=0,ty=0,tt=null;
+document.addEventListener('touchstart',e=>{const t=e.touches[0];tx=t.clientX;ty=t.clientY;tt=e.target},{passive:true});
+document.addEventListener('touchend',e=>{const t=e.changedTouches[0],dx=t.clientX-tx,dy=t.clientY-ty;if(Math.abs(dx)<50||Math.abs(dy)>Math.abs(dx)||!me||!tt)return;
+const r=app.getBoundingClientRect(),o=$('#ov');if(o&&o.classList.contains('on'))return;
+if(ADM&&dx<0&&tx>r.right-60)return cpOpen(1);if(ADM&&dx>0&&tt.closest&&tt.closest('#cp'))return cpOpen(0);
+if(tt.closest&&tt.closest('.stage')&&me.cards.length>1){if(dx<0&&ci<me.cards.length-1){ci++;st=0;home()}else if(dx>0&&ci>0){ci--;st=0;home()}}},{passive:true});
+
+new MutationObserver(m=>m.forEach(r=>r.addedNodes.forEach(n=>{const k=n.className;if(k!=='cmt'&&k!=='ast')return;const a=Math.random()*360,R=a*Math.PI/180,L=k==='cmt'?260+Math.random()*200:120+Math.random()*180;
+n.style.setProperty('--r',a+'deg');n.style.setProperty('--d',L+'px');n.style.setProperty('--dx',Math.cos(R)*L+'px');n.style.setProperty('--dy',Math.sin(R)*L+'px');n.style.animationDuration=(k==='cmt'?1.8+Math.random()*1.6:6+Math.random()*7)+'s'}))).observe(sky,{childList:true});
+function toast(t){const o=$('#toast');if(o)o.remove();const e=document.createElement('div');e.id='toast';e.textContent=t;app.appendChild(e);setTimeout(()=>{e.style.transition='opacity .5s';e.style.opacity=0;setTimeout(()=>e.remove(),500)},3500)}
+function acts(){drawer(0);const c=card();sheet(`<h3>${ADM?'Дії із власною карткою':'Дії з карткою'}</h3><button class="btn s" onclick="colr()">Змінити колір</button>${ADM?'':'<button class="btn s" onclick="chPin()">Змінити пароль</button>'}<button class="btn s" onclick="chCvv()">Змінити CVV</button><button class="btn s" onclick="phys()">Виготовити фізичну картку</button>${ADM?'':'<button class="btn s" onclick="addC2()">Додати ще одну картку</button><button class="btn s" style="color:#d33;border-color:#d33" onclick="del()">Видалити якусь із карток</button>'}<button class="btn s" style="color:#d33;border-color:#d33" onclick="tgB()">${c.blocked?'Розблокувати':'Заблокувати'} картку</button><button class="btn" onclick="closeS();drawer(1)">Назад</button>`)}
+function addC2(){if(me.cards.length>=3)return toast('Спочатку потрібно видалити одну картку — максимум 3 картки');
+sheet(`<h3>Нова картка</h3><select id="ry"><option>Visa</option><option>Mastercard</option></select><button class="btn" onclick="addOk()">Створити</button>`+bk())}
+function addOk(){if(me.cards.length>=3)return;me.cards.push(newCard($('#ry').value));ci=me.cards.length-1;st=0;sv();closeS();home()}
+function del(){sheet(`<h3>Видалити картку</h3>${me.cards.length<2?'<p>Єдину картку видалити не можна.</p>':me.cards.map((c,i)=>`<div class="res row"><span>•••• ${c.num.slice(-4)} · ${c.sys}<br><small>${fmt(c.bal)} Ф</small></span><button class="btn" style="width:auto;margin:0;padding:8px 18px" onclick="delC(${i})">Обрати</button></div>`).join('')}`+bk())}
+function delC(i){const c=me.cards[i];sheet(`<h3>Видалити картку?</h3><p style="margin-bottom:8px">Ви точно хочете видалити картку •••• ${c.num.slice(-4)}?${c.bal>0?' Баланс '+fmt(c.bal)+' Ф буде втрачено.':''}</p><button class="btn" style="background:#d33" onclick="delOk(${i})">Так, видалити</button><button class="btn s" onclick="del()">Ні</button>`)}
+function delOk(i){if(me.cards.length<2)return;me.cards.splice(i,1);ci=0;st=0;sv();closeS();home()}
+
+const MON=['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
+let RS='Visa',_Y=[];
+const wv=id=>Math.round($('#'+id).scrollTop/40);
+function sys(x){RS=x;document.querySelectorAll('.seg span').forEach(e=>e.classList.toggle('on',e.textContent===x))}
+function reg(){RS='Visa';_Y=[];for(let y=new Date().getFullYear();y>=1930;y--)_Y.push(y);
+app.innerHTML=`<div class="auth"><div class="hi">Вітаю!</div><div class="sub">Для того, щоб зареєструватись заповніть наступні дані:</div>
+<input id="rn" placeholder="Ім'я"><input id="rs" placeholder="Прізвище">
+<div class="ph"><span>+38</span><input id="rf" inputmode="numeric" maxlength="10" placeholder="0XXXXXXXXX" oninput="this.value=this.value.replace(/\\D/g,'')"></div>
+<div class="lb">Дата народження</div><div class="whs"><div class="wh" id="wd" style="flex:.7">${Array.from({length:31},(_,i)=>`<div class="wi">${i+1}</div>`).join('')}</div><div class="wh" id="wm" style="flex:1.5">${MON.map(x=>`<div class="wi">${x}</div>`).join('')}</div><div class="wh" id="wy" style="flex:1">${_Y.map(y=>`<div class="wi">${y}</div>`).join('')}</div></div>
+<div class="lb">Платіжна система</div><div class="seg"><span class="on" onclick="sys('Visa')">Visa</span><span onclick="sys('Mastercard')">Mastercard</span></div>
+<div class="lb">Додатково</div><input id="rk" placeholder="Нікнейм (за бажанням)"><input id="rp" type="password" inputmode="numeric" maxlength="4" placeholder="Пароль (4 цифри)">
+<div class="err" id="er"></div><button class="btn" onclick="doReg()">Створити картку</button>${DB.users.length?'<div class="lnk" onclick="login()">Вже є акаунт? Увійти</div>':''}</div>`;
+setTimeout(()=>{$('#wy').scrollTop=(new Date().getFullYear()-2012)*40},60)}
+function doReg(){const v=i=>$('#'+i).value.trim(),E=t=>$('#er').textContent=t;
+if(!v('rn')||!v('rs'))return E("Вкажіть ім'я та прізвище");
+const ph=v('rf');if(!/^\d{10}$/.test(ph))return E('Номер телефону: 10 цифр після +38');
+const phone='+38'+ph;if(DB.users.some(u=>u.phone===phone))return E('Акаунт з таким номером уже існує. Спробуйте інший номер телефону.');
+const dd=wv('wd')+1,mm=wv('wm')+1,yy=_Y[wv('wy')],d=new Date(yy,mm-1,dd);
+if(d.getDate()!==dd||d>new Date())return E('Перевірте дату народження');
+if(!/^\d{4}$/.test(v('rp')))return E('Пароль — рівно 4 цифри');
+const dob=String(dd).padStart(2,'0')+'.'+String(mm).padStart(2,'0')+'.'+yy;
+const u={id:'u'+Date.now(),surname:v('rs'),name:v('rn'),dob,phone,nick:v('rk'),pin:v('rp'),avatar:'',cards:[newCard(RS)]};
+const ow=OW.find(o=>o[0].toLowerCase()===u.surname.toLowerCase()&&o[1].toLowerCase()===u.name.toLowerCase()&&o[2]===u.dob&&!allCards().some(c=>c.num===o[3]));
+if(ow){u.owner=true;u.cards[0].num=ow[3];u.cards[0].bal=500000;addOp(u.cards[0],'Кіт з мішка',500000)}
+DB.users.push(u);me=u;ci=0;st=0;sv();home();if(ow)cat(ow[4],{ms:9000})}
+function profile(){drawer(0);sheet(`<h3>Профіль</h3><img class="av" id="pa" src="${me.avatar||''}"><input type="file" accept="image/*" onchange="ava(this)">
+<input id="ps" value="${me.surname}" placeholder="Прізвище"><input id="pn" value="${me.name}" placeholder="Ім'я"><input id="pk" value="${me.nick||''}" placeholder="Нікнейм">
+<div class="err" id="er"></div><button class="btn" onclick="saveP()">Зберегти</button><button class="btn s" style="color:#d33;border-color:#d33" onclick="delP()">Видалити профіль</button>`)}
+function delP(){sheet(`<h3>Видалити профіль?</h3><p style="margin-bottom:8px">Ви дійсно бажаєте видалити профіль? Усі картки та баланс буде втрачено без можливості відновлення.</p><button class="btn" style="background:#d33" onclick="delPOk()">Так, видалити профіль</button><button class="btn s" onclick="profile()">Ні, повернутись</button>`)}
+async function delPOk(){const u=me,ks=['users/'+u.id,...u.cards.map(c=>'cards/'+c.num)];DB.users=DB.users.filter(x=>x.id!==u.id);ks.forEach(k=>{delete rem[k];delete last[k]});
+me=null;sv();closeS();st=0;DB.users.length?login():reg();
+if(dbh)for(const k of ks){const[c,i]=k.split('/');try{await dbh.collection(c).doc(i).delete()}catch(e){}}}
+me?home():(DB.users.length?login():reg());
+</script></body></html>
